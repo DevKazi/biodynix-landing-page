@@ -1,0 +1,8 @@
+# Local tooling
+.vscode/
+.DS_Store
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example

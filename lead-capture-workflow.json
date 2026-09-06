@@ -1,0 +1,101 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-capture",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        240
+      ],
+      "id": "webhook-trigger",
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "creator-funnel-roi-tracker",
+          "mode": "list",
+          "cachedResultName": "creator-funnel-roi-tracker"
+        },
+        "sheetId": {
+          "__rl": true,
+          "value": "sheet1",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.body.name }}",
+            "Email": "={{ $json.body.email }}",
+            "Phone": "={{ $json.body.phone }}",
+            "Date": "={{ $now.format('yyyy-MM-dd HH:mm:ss') }}"
+          },
+          "matchingColumns": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        220,
+        240
+      ],
+      "id": "gsheet-append",
+      "name": "Google Sheets"
+    },
+    {
+      "parameters": {
+        "resource": "email",
+        "fromEmail": "no-reply@yourdomain.com",
+        "toEmail": "={{ $json.Email }}",
+        "subject": "Your Free Wellness Guide is Here! \ud83c\udf81",
+        "html": "<h3>Hello {{ $json.Name }},</h3><p>Thank you for requesting our exclusive health and wellness guide. We are thrilled to have you join our global community!</p><p>Click the link below to download your free guide and start your wellness journey today:</p><p><strong><a href=\"https://click.link/your-tracked-affiliate-id\" style=\"background-color: #00b074; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;\">Get My Free Guide Now</a></strong></p><p>Best regards,<br>Global Health Support Team</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.awsSes",
+      "typeVersion": 1,
+      "position": [
+        440,
+        240
+      ],
+      "id": "aws-ses-send",
+      "name": "AWS SES"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AWS SES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
